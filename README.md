@@ -15,3 +15,5 @@ Drag and drop the desired image onto this area, or click on it to select the ima
 Once the image is uploaded, the tool will automatically extract and display the metadata for you.
 Description
 This tool is user-friendly and efficient. Whether you're dragging and dropping your image or selecting it from your files, the extractor will handle it seamlessly. Make sure you've properly set up everything as mentioned in the "Setup & Requirements" section.
+![image](https://github.com/I210I/Stable-Difussion-promt-extractor/assets/14183985/c074476b-4dee-49cf-8c08-1b4b432eec83)
+![image](https://github.com/I210I/Stable-Difussion-promt-extractor/assets/14183985/87d8832a-c050-4f82-b23d-33104460cb81)
