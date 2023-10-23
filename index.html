@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+  <title>Stable Difusion Prompt Extractor</title>
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <meta http-equiv="Content-Script-Type" content="application/javascript">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <!-- Material Design Lite CSS -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+  <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.indigo-pink.min.css">
+
+  <!-- Material Design Lite JS -->
+  <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+    #cards {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+
+    }
+
+    .card {
+      border: 1px solid #333;
+      border-radius: 8px;
+      padding: 16px;
+      min-width: 200px;
+      background-color: white;
+      font-size: 24px;
+      color: white;
+      text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
+    }
+
+    .card-content {
+      word-wrap: break-word;
+    }
+
+    .light-theme {
+      background-color: #999999;
+      color: #333333;
+    }
+
+    .dark-theme {
+      background-color: #333333;
+      color: #999999;
+    }
+  </style>
+
+<body>
+  <div class="center-wrapper">
+    <div class="mdc-layout-grid centered-container">
+
+      <article>
+
+        <div class="mdc-layout-grid">
+          <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-12">
+            <div class="mdc-layout-grid__inner">
+              <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="switch-1">
+                <input type="checkbox" id="switch-1" class="mdl-switch__input" onchange="toggleTheme()">
+                <span class="mdl-switch__label"></span>
+              </label>
+
+              <script>
+                function toggleTheme() {
+                  const body = document.body;
+
+                  if (body.classList.contains("light-theme")) {
+                    body.classList.remove("light-theme");
+                    body.classList.add("dark-theme");
+                  } else {
+                    body.classList.remove("dark-theme");
+                    body.classList.add("light-theme");
+                  }
+                }
+
+              </script>
+              <table id="input" class="mdc-data-table">
+                <tbody>
+                  <tr style="display: none;">
+                    <td>Use sample file:</td>
+                    <td>
+                      <select>
+                        <option></option>
+                        <option value="good_normal_one-black-pixel.png">Normal - Good - One black pixel</option>
+                        <option value="good_normal_one-black-pixel_paletted.png">Normal - Good - One black pixel -
+                          Paletted</option>
+                        <option value="good_normal_tiny-rgb-gray.png">Normal - Good - Tiny RGB gray</option>
+                        <option value="bad_signature_empty.png">Signature - Bad - Empty</option>
+                        <option value="bad_signature_mismatch-truncated.png">Signature - Bad - Mismatch, truncated
+                        </option>
+                        <option value="bad_signature_mismatch.png">Signature - Bad - Mismatch</option>
+                        <option value="bad_signature_truncated.png">Signature - Bad - Truncated</option>
+                        <option value="bad_chunks_empty.png">Chunks - Bad - Empty</option>
+                        <option value="bad_chunk_length_truncated.png">Chunk - Bad - Length - Truncated</option>
+                        <option value="bad_chunk_length_overflow.png">Chunk - Bad - Length - Overflow</option>
+                        <option value="bad_chunk_type_truncated.png">Chunk - Bad - Type - Truncated</option>
+                        <option value="bad_chunk_type_wrong-characters.png">Chunk - Bad - Type - Wrong characters
+                        </option>
+                        <option value="bad_chunk_data_truncated.png">Chunk - Bad - Data - Truncated</option>
+                        <option value="bad_chunk_crc_truncated.png">Chunk - Bad - CRC - Truncated</option>
+                        <option value="bad_chunk_crc_mismatch.png">Chunk - Bad - CRC - Mismatch</option>
+                        <option value="good_bkgd_sans-palette.png">bKGD - Good - Sans palette</option>
+                        <option value="good_bkgd_with-palette.png">bKGD - Good - With palette</option>
+                        <option value="bad_bkgd_wrong-length.png">bKGD - Bad - Wrong length</option>
+                        <option value="bad_bkgd_wrong-color.png">bKGD - Bad - Wrong color</option>
+                        <option value="bad_bkgd_wrong-index.png">bKGD - Bad - Wrong index</option>
+                        <option value="good_chrm_rec-709.png">cHRM - Good - Rec. 709</option>
+                        <option value="good_chrm_rec-2020.png">cHRM - Good - Rec. 2020</option>
+                        <option value="bad_chrm_wrong-length.png">cHRM - Bad - Wrong length</option>
+                        <option value="good_gama_0.45455.png">gAMA - Good - 0.45455</option>
+                        <option value="good_gama_1.00000.png">gAMA - Good - 1.00000</option>
+                        <option value="bad_gama_misordered.png">gAMA - Bad - Misordered</option>
+                        <option value="good_hist.png">hIST - Good</option>
+                        <option value="bad_hist_wrong-length.png">hIST - Bad - Wrong length</option>
+                        <option value="good_idat_progressive.png">IDAT - Good - Progressive</option>
+                        <option value="good_idat_interlaced.png">IDAT - Good - Interlaced</option>
+                        <option value="good_idat_multiple.png">IDAT - Good - Multiple</option>
+                        <option value="good_idat_some-empty.png">IDAT - Good - Some empty</option>
+                        <option value="bad_idat_nonconsecutive.png">IDAT - Bad - Non-consecutive</option>
+                        <option value="bad_idat_zlib_wrong-header-checksum.png">IDAT - Bad - zlib - Wrong header
+                          checksum</option>
+                        <option value="bad_idat_zlib_wrong-adler32.png">IDAT - Bad - zlib - Wrong Adler-32</option>
+                        <option value="bad_idat_zlib_extra-data-after.png">IDAT - Bad - zlib - Extra data after</option>
+                        <option value="bad_idat_deflate_truncated.png">IDAT - Bad - DEFLATE - Truncated</option>
+                        <option value="bad_idat_image-data_too-short.png">IDAT - Bad - Image data - Too short</option>
+                        <option value="bad_idat_image-data_too-long.png">IDAT - Bad - Image data - Too long</option>
+                        <option value="bad_idat_progressive_wrong-filter.png">IDAT - Bad - Progressive - Wrong filter
+                        </option>
+                        <option value="bad_idat_interlaced_wrong-filter.png">IDAT - Bad - Interlaced - Wrong filter
+                        </option>
+                        <option value="bad_ihdr_wrong-length.png">IHDR - Bad - Wrong length</option>
+                        <option value="bad_ihdr_wrong-dimensions.png">IHDR - Bad - Wrong dimensions</option>
+                        <option value="bad_ihdr_wrong-bit-depth.png">IHDR - Bad - Wrong bit depth</option>
+                        <option value="bad_ihdr_wrong-methods.png">IHDR - Bad - Wrong methods</option>
+                        <option value="good_itxt.png">iTXt - Good</option>
+                        <option value="bad_itxt_wrong-separators.png">iTXt - Bad - Wrong separators</option>
+                        <option value="bad_itxt_wrong-language-tags.png">iTXt - Bad - Wrong language tags</option>
+                        <option value="bad_itxt_wrong-utf8.png">iTXt - Bad - Wrong UTF-8</option>
+                        <option value="bad_itxt_wrong-compression-methods.png">iTXt - Bad - Wrong compression methods
+                        </option>
+                        <option value="bad_itxt_wrong-compressed-data.png">iTXt - Bad - Wrong compressed data</option>
+                        <option value="good_offs_micrometre-unit.png">oFFs - Good - Micrometre unit</option>
+                        <option value="good_offs_pixel-unit.png">oFFs - Good - Pixel unit</option>
+                        <option value="bad_offs_wrong-length.png">oFFs - Bad - Wrong length</option>
+                        <option value="bad_offs_wrong-unit.png">oFFs - Bad - Wrong unit</option>
+                        <option value="good_phys_96-dpi.png">pHYs - Good - 96 DPI</option>
+                        <option value="good_phys_horizontal-stretch.png">pHYs - Good - Horizontal stretch</option>
+                        <option value="bad_phys_wrong-unit.png">pHYs - Bad - Wrong unit</option>
+                        <option value="good_sbit.png">sBIT - Good</option>
+                        <option value="bad_sbit_zero.png">sBIT - Bad - Zero</option>
+                        <option value="bad_sbit_excess.png">sBIT - Bad - Excess</option>
+                        <option value="good_splt.png">sPLT - Good</option>
+                        <option value="bad_splt_wrong-names.png">sPLT - Bad - Wrong names</option>
+                        <option value="bad_splt_duplicate-name.png">sPLT - Bad - Duplicate name</option>
+                        <option value="bad_splt_wrong-bit-depth.png">sPLT - Bad - Wrong bit depth</option>
+                        <option value="bad_splt_wrong-length.png">sPLT - Bad - Wrong length</option>
+                        <option value="good_srgb.png">sRGB - Good</option>
+                        <option value="bad_srgb_wrong-length.png">sRGB - Bad - Wrong length</option>
+                        <option value="bad_srgb_duplicate.png">sRGB - Bad - Duplicate</option>
+                        <option value="bad_srgb_misordered.png">sRGB - Bad - Misordered</option>
+                        <option value="good_ster.png">sTER - Good</option>
+                        <option value="bad_ster_wrong-length.png">sTER - Bad - Wrong length</option>
+                        <option value="good_text.png">tEXt - Good</option>
+                        <option value="bad_text_wrong-keywords.png">tEXt - Bad - Wrong keywords</option>
+                        <option value="bad_text_wrong-text.png">tEXt - Bad - Wrong text</option>
+                        <option value="good_time_leap-second.png">tIME - Good - Leap second</option>
+                        <option value="good_time_unix-epoch.png">tIME - Good - Unix epoch</option>
+                        <option value="bad_time_wrong-length.png">tIME - Bad - Wrong length</option>
+                        <option value="bad_time_wrong-fields.png">tIME - Bad - Wrong fields</option>
+                        <option value="bad_time_wrong-day.png">tIME - Bad - Wrong day</option>
+                        <option value="bad_time_misordered.png">tIME - Bad - Misordered</option>
+                        <option value="good_trns_sans-palette.png">tRNS - Good - Sans palette</option>
+                        <option value="good_trns_with-palette.png">tRNS - Good - With palette</option>
+                        <option value="bad_trns_wrong-color.png">tRNS - Bad - Wrong color</option>
+                        <option value="bad_trns_wrong-length.png">tRNS - Bad - Wrong length</option>
+                        <option value="good_ztxt.png">zTXt - Good</option>
+                        <option value="bad_ztxt_wrong-keywords.png">zTXt - Bad - Wrong keywords</option>
+                        <option value="bad_ztxt_wrong-compression-methods.png">zTXt - Bad - Wrong compression methods
+                        </option>
+                        <option value="bad_ztxt_wrong-compressed-data.png">zTXt - Bad - Wrong compressed data</option>
+                      </select>
+                      <a download="" style="display:none">(download)</a>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td colspan="2" style="text-align: center; vertical-align: middle;">
+                      <div id="fileDropZone">
+                        <input type="file" id="fileInput" accept="image/png,.png">
+                        <label for="fileInput">Drop file here or click to upload</label>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr style="display: none;">
+                    <td>Check IDATs:</td>
+                    <td><input type="checkbox"> (CPU- and RAM-intensive)</td>
+                  </tr>
+                </tbody>
+              </table>
+
+            </div>
+          </div>
+        </div>
+
+        <p>Chunk summary: <span id="summary"></span></p>
+        <br>
+        <div id="cards"></div>
+        <table id="output" style="clear:right">
+          <thead>
+            <tr>
+              <th>Start offset</th>
+              <th>Raw bytes</th>
+              <th>Chunk outside</th>
+              <th>Chunk inside</th>
+              <th>Errors</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+    </div>
+  </div>
+
+
+  <script src="extractor_metadata.js">
+    document.getElementById('fileInput').addEventListener('change', function () {
+      const fileName = this.files[0]?.name || 'Drop file here or click to upload';
+      this.nextElementSibling.textContent = fileName;
+    });
+  </script>
+
+
+  <style>
+    .center-wrapper {
+      display: flex;
+      justify-content: center;
+    }
+
+    .centered-container {
+      width: 80%;
+    }
+
+    .mdc-layout-grid {
+      box-sizing: border-box;
+    }
+
+    #fileDropZone {
+      position: relative;
+      width: 300px;
+      height: 100px;
+      border: 2px dashed #ff0066;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #ff0066;
+      margin: auto;
+      /* Auto margins to horizontally center */
+    }
+
+    #fileInput {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      cursor: pointer;
+    }
+
+    #fileDropZone label {
+      pointer-events: none;
+      /* Make sure the label doesn't interfere with the input */
+    }
+  </style>
+
+
+
+
+</body>
+
+</html>
