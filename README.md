@@ -10,6 +10,10 @@ Open the index.html file in a web browser.
 ##Usage
 Using the Stable Diffusion Prompt Extractor is straightforward:
 
+Acces to https://i210i.github.io/
+
+or,
+
 You'll see a designated area on the web interface that says "Drop file here or click to upload."
 Drag and drop the desired image onto this area, or click on it to select the image from your local files.
 Once the image is uploaded, the tool will automatically extract and display the metadata for you.
